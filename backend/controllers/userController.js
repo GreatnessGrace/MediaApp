@@ -175,3 +175,12 @@ const videoUpload = multer({
     }
   },
 }).single("video");
+
+exports.getUserVideos = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("videos");
+    res.json(user.videos);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching user videos" });
+  }
+};
