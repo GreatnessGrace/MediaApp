@@ -184,3 +184,12 @@ exports.getUserVideos = async (req, res) => {
     res.status(500).json({ error: "Error fetching user videos" });
   }
 };
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("firstName lastName videos");
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching all users" });
+  }
+};

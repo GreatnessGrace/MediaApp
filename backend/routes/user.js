@@ -7,5 +7,6 @@ router.post("/login", userController.loginUser);
 router.post("/upload-profile-photo", userController.uploadProfilePhoto);
 router.post("/upload-video", userController.uploadVideo);
 router.get("/user-videos/:id", userController.getUserVideos);
+router.get("/all-users", userController.getAllUsers);
 
 module.exports = router;
