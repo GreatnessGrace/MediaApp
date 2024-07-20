@@ -124,3 +124,54 @@ exports.uploadProfilePhoto = async (req, res) => {
     }
   });
 };
+
+exports.uploadVideo = async (req, res) => {
+  videoUpload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    const { title, description } = req.body;
+    const video = {
+      title,
+      description,
+      url: req.file.path,
+    };
+
+    try {
+      const user = await User.findById(req.user.id);
+      user.videos.push(video);
+      await user.save();
+      res.json({ message: "Video uploaded successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Error uploading video" });
+    }
+  });
+};
+
+// Configure Multer for video
+const videoStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/videos/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.user.id + "-" + Date.now() + path.extname(file.originalname));
+  },
+});
+
+const videoUpload = multer({
+  storage: videoStorage,
+  limits: { fileSize: 6 * 1024 * 1024 }, // 6 MB limit
+  fileFilter: function (req, file, cb) {
+    const fileTypes = /mp4/;
+    const extname = fileTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = fileTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("MP4 videos only!"));
+    }
+  },
+}).single("video");
